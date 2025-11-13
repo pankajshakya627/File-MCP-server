@@ -1,0 +1,9 @@
+[project]
+name = "mcp-local"
+version = "0.1.0"
+description = "A working MCP server using FastMCP with stdio and HTTP streamable transports"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp==2.13.0.2"
+]
+
