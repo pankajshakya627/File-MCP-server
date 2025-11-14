@@ -1,15 +1,6 @@
 """
 FastMCP Server - Local Utils
 A comprehensive MCP server using FastMCP with file operations, text processing, and utilities.
-
-Usage:
-  uv run main.py                      # STDIO transport (default, for Claude Desktop)
-  uv run main.py --transport http     # HTTP Streamable transport for network access
-  uv run main.py --transport http --port 8080  # Custom port
-
-Or using FastMCP CLI:
-  fastmcp dev main.py                 # Development mode with auto-reload
-  fastmcp run main.py --transport http
 """
 
 import json
