@@ -618,6 +618,197 @@ def get_server_info() -> str:
     )
 
 
+@mcp.resource("server://tools")
+def get_tools_info() -> str:
+    """Return detailed information about all available tools."""
+    tools_info = {
+        "file_operations": {
+            "read_file": {
+                "description": "Read and return the contents of a file",
+                "parameters": {"path": "Path to file (supports ~ for home directory)"},
+                "returns": "File contents with metadata"
+            },
+            "write_file": {
+                "description": "Write content to a file, creates if doesn't exist",
+                "parameters": {
+                    "path": "Path to file",
+                    "content": "Content to write"
+                },
+                "returns": "Success message with file info"
+            },
+            "append_to_file": {
+                "description": "Append content to end of a file",
+                "parameters": {
+                    "path": "Path to file",
+                    "content": "Content to append"
+                },
+                "returns": "Success message"
+            },
+            "update_file": {
+                "description": "Find and replace text in a file",
+                "parameters": {
+                    "path": "Path to file",
+                    "old_text": "Text to find",
+                    "new_text": "Replacement text"
+                },
+                "returns": "Success message with count of replacements"
+            },
+            "delete_file": {
+                "description": "Delete a file permanently",
+                "parameters": {"path": "Path to file"},
+                "returns": "Confirmation message"
+            }
+        },
+        "directory_operations": {
+            "list_directory": {
+                "description": "List files and directories in a path",
+                "parameters": {"path": "Directory path (default: current)"},
+                "returns": "List of files/folders with type indicators"
+            },
+            "find_files": {
+                "description": "Search for files matching a pattern",
+                "parameters": {
+                    "directory": "Directory to search",
+                    "pattern": "Glob pattern (e.g., *.py)",
+                    "recursive": "Search subdirectories (default: true)"
+                },
+                "returns": "List of matching files"
+            },
+            "create_directory": {
+                "description": "Create a new directory",
+                "parameters": {
+                    "path": "Path to create",
+                    "parents": "Create parent dirs (default: true)"
+                },
+                "returns": "Success message"
+            },
+            "organize_directory": {
+                "description": "Organize files by type, date, or size",
+                "parameters": {
+                    "directory": "Directory to organize",
+                    "by": "Method: 'type', 'date', or 'size'"
+                },
+                "returns": "Summary of organization performed"
+            }
+        },
+        "text_processing": {
+            "count_words": {
+                "description": "Count words in text",
+                "parameters": {"text": "Text to analyze"},
+                "returns": "Word count and statistics"
+            },
+            "search_text": {
+                "description": "Search for text with context",
+                "parameters": {
+                    "text": "Text to search in",
+                    "query": "Text to find",
+                    "context_lines": "Lines before/after match (default: 1)"
+                },
+                "returns": "Matches with surrounding context"
+            }
+        },
+        "math_operations": {
+            "add_numbers": {
+                "description": "Add two numbers",
+                "parameters": {"a": "First number", "b": "Second number"},
+                "returns": "Sum"
+            },
+            "multiply_numbers": {
+                "description": "Multiply two numbers",
+                "parameters": {"a": "First number", "b": "Second number"},
+                "returns": "Product"
+            },
+            "calculate": {
+                "description": "Evaluate mathematical expressions",
+                "parameters": {"expression": "Math expression (e.g., '2 + 3 * 4')"},
+                "returns": "Result of calculation"
+            }
+        },
+        "utilities": {
+            "get_greeting": {
+                "description": "Generate a personalized greeting",
+                "parameters": {"name": "Person's name"},
+                "returns": "Greeting message"
+            },
+            "get_current_time": {
+                "description": "Get current date and time",
+                "parameters": {},
+                "returns": "Current date/time with timezone"
+            }
+        }
+    }
+    return json.dumps(tools_info, indent=2)
+
+
+@mcp.resource("server://usage")
+def get_usage_guide() -> str:
+    """Return usage guide and best practices for the MCP server."""
+    guide = {
+        "quick_start": {
+            "description": "Get started with the MCP server",
+            "steps": [
+                "1. Start server: uv run main.py",
+                "2. Call tools via JSON-RPC 2.0",
+                "3. Use with Claude or other MCP clients"
+            ]
+        },
+        "file_operations_tips": [
+            "Always use absolute paths or ~ for home directory",
+            "Check file exists before reading",
+            "Create parent directories automatically with write_file",
+            "Use find_files with patterns like *.py, *.txt"
+        ],
+        "error_handling": {
+            "file_not_found": "Check path exists and is accessible",
+            "permission_denied": "Verify file permissions",
+            "unsupported_encoding": "File may be binary, use base64 encoding"
+        },
+        "best_practices": [
+            "Organize large directories by type/date/size",
+            "Use search_text with context for code analysis",
+            "Always validate file paths before operations",
+            "Use recursive=true for thorough file searches"
+        ],
+        "examples": {
+            "read_file": "read_file('/path/to/file.txt')",
+            "find_python_files": "find_files('.', '*.py', true)",
+            "organize_downloads": "organize_directory('~/Downloads', 'type')",
+            "add_numbers": "add_numbers(10, 20)"
+        }
+    }
+    return json.dumps(guide, indent=2)
+
+
+@mcp.resource("server://status")
+def get_server_status() -> str:
+    """Return current server status and capabilities."""
+    status = {
+        "status": "operational",
+        "version": "2.0.0",
+        "uptime": "running",
+        "capabilities": {
+            "file_operations": True,
+            "directory_operations": True,
+            "text_processing": True,
+            "math_operations": True,
+            "utilities": True
+        },
+        "supported_transports": [
+            "stdio (JSON-RPC 2.0 over stdin/stdout)",
+            "HTTP Streamable (POST /mcp endpoint)"
+        ],
+        "resources": {
+            "server://info": "Server metadata and tool categories",
+            "server://tools": "Detailed tool reference",
+            "server://usage": "Usage guide and examples",
+            "server://status": "Server status and capabilities"
+        },
+        "python_version": sys.version.split()[0],
+        "fastmcp_version": "2.13.0.2"
+    }
+    return json.dumps(status, indent=2)
+
+
 # ============================================================================
 # PROMPTS
 # ============================================================================
