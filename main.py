@@ -373,8 +373,9 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
                     counter += 1
                 
                 if not dry_run:
-                    target_dir.mkdir(exist_ok=True)
-                    item.rename(target_file)
+                    import asyncio
+                    await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
+                    await asyncio.to_thread(item.rename, target_file)
                 
                 moved_count += 1
                 summary.append(f"  {item.name} → {category}/")
@@ -393,8 +394,9 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
                     counter += 1
                 
                 if not dry_run:
-                    target_dir.mkdir(exist_ok=True)
-                    item.rename(target_file)
+                    import asyncio
+                    await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
+                    await asyncio.to_thread(item.rename, target_file)
                 
                 moved_count += 1
                 summary.append(f"  {item.name} → {date_str}/")
@@ -419,8 +421,9 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
                     counter += 1
                 
                 if not dry_run:
-                    target_dir.mkdir(exist_ok=True)
-                    item.rename(target_file)
+                    import asyncio
+                    await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
+                    await asyncio.to_thread(item.rename, target_file)
                 
                 moved_count += 1
                 summary.append(f"  {item.name} → {category}/")
@@ -461,10 +464,15 @@ async def count_words(text: str) -> str:
     Returns:
         Statistics about the text
     """
-    words = len(text.split())
-    chars = len(text)
-    chars_no_spaces = len(text.replace(' ', '').replace('\n', '').replace('\t', ''))
-    lines = text.count('\n') + 1
+    def _count():
+        words = len(text.split())
+        chars = len(text)
+        chars_no_spaces = len(text.replace(' ', '').replace('\n', '').replace('\t', ''))
+        lines = text.count('\n') + 1
+        return words, chars, chars_no_spaces, lines
+
+    import asyncio
+    words, chars, chars_no_spaces, lines = await asyncio.to_thread(_count)
     
     return f"""📊 Text Statistics:
   Words: {words:,}
@@ -485,38 +493,42 @@ async def search_text(text: str, query: str, case_sensitive: bool = False) -> st
     Returns:
         Number of matches and context around each match
     """
-    search_text = text if case_sensitive else text.lower()
-    search_query = query if case_sensitive else query.lower()
-    
-    count = search_text.count(search_query)
-    
-    if count == 0:
-        return f"🔍 No matches found for '{query}'"
-    
-    # Find positions
-    positions = []
-    start = 0
-    while True:
-        pos = search_text.find(search_query, start)
-        if pos == -1:
-            break
-        positions.append(pos)
-        start = pos + 1
-    
-    result = [f"🔍 Found {count} occurrence(s) of '{query}':\n"]
-    
-    for i, pos in enumerate(positions[:10], 1):  # Show first 10 matches
-        # Get context (50 chars before and after)
-        start = max(0, pos - 50)
-        end = min(len(text), pos + len(query) + 50)
-        context = text[start:end]
+    def _search():
+        search_text_val = text if case_sensitive else text.lower()
+        search_query_val = query if case_sensitive else query.lower()
         
-        result.append(f"  {i}. Position {pos}: ...{context}...")
-    
-    if len(positions) > 10:
-        result.append(f"\n  ... and {len(positions) - 10} more occurrences")
-    
-    return "\n".join(result)
+        count = search_text_val.count(search_query_val)
+        
+        if count == 0:
+            return f"🔍 No matches found for '{query}'"
+        
+        # Find positions
+        positions = []
+        start = 0
+        while True:
+            pos = search_text_val.find(search_query_val, start)
+            if pos == -1:
+                break
+            positions.append(pos)
+            start = pos + 1
+        
+        result = [f"🔍 Found {count} occurrence(s) of '{query}':\n"]
+        
+        for i, pos in enumerate(positions[:10], 1):  # Show first 10 matches
+            # Get context (50 chars before and after)
+            start = max(0, pos - 50)
+            end = min(len(text), pos + len(query) + 50)
+            context = text[start:end]
+            
+            result.append(f"  {i}. Position {pos}: ...{context}...")
+        
+        if len(positions) > 10:
+            result.append(f"\n  ... and {len(positions) - 10} more occurrences")
+        
+        return "\n".join(result)
+
+    import asyncio
+    return await asyncio.to_thread(_search)
 
 
 # ============================================================================
@@ -545,7 +557,8 @@ async def calculate(expression: str) -> str:
             'exp': math.exp, 'pi': math.pi, 'e': math.e,
         }
         
-        result = eval(expression, {"__builtins__": {}}, safe_dict)
+        import asyncio
+        result = await asyncio.to_thread(eval, expression, {"__builtins__": {}}, safe_dict)
         return f"🔢 {expression} = {result}"
     except Exception as e:
         return f"❌ Error evaluating expression: {e}"
