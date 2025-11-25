@@ -63,7 +63,7 @@ async def read_file(path: str) -> str:
         File contents as string
     """
     try:
-        file_path = Path(path).expanduser().resolve()
+        file_path = _get_safe_path(path)
         
         if not file_path.exists():
             return f"❌ Error: File does not exist: {path}"
@@ -222,7 +222,7 @@ async def list_directory(path: str = ".", show_hidden: bool = False, detailed: b
         Formatted list of items
     """
     try:
-        dir_path = Path(path).expanduser().resolve()
+        dir_path = _get_safe_path(path)
         
         if not dir_path.exists():
             return f"❌ Error: Path does not exist: {path}"
@@ -280,7 +280,7 @@ async def find_files(
         List of matching files (one per line)
     """
     try:
-        dir_path = Path(directory).expanduser().resolve()
+        dir_path = _get_safe_path(directory)
         
         if not dir_path.exists():
             return f"❌ Error: Directory does not exist: {directory}"
