@@ -25,7 +25,7 @@ async def health_check(request):
 
 
 @mcp.tool()
-def read_file(path: str) -> str:
+async def read_file(path: str) -> str:
     """Read and return the contents of a file.
     
     Args:
@@ -42,7 +42,9 @@ def read_file(path: str) -> str:
         if not file_path.is_file():
             return f"❌ Error: Path is not a file: {path}"
         
-        content = file_path.read_text(encoding='utf-8')
+        import aiofiles
+        async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
+            content = await f.read()
         size = len(content)
         lines = content.count('\n') + 1
         
@@ -56,7 +58,7 @@ def read_file(path: str) -> str:
 
 
 @mcp.tool()
-def write_file(path: str, content: str, overwrite: bool = True) -> str:
+async def write_file(path: str, content: str, overwrite: bool = True) -> str:
     """Write content to a file. Creates parent directories if needed.
     
     Args:
@@ -74,7 +76,9 @@ def write_file(path: str, content: str, overwrite: bool = True) -> str:
             return f"❌ Error: File already exists (use overwrite=true to replace): {path}"
         
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        file_path.write_text(content, encoding='utf-8')
+        import aiofiles
+        async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
+            await f.write(content)
         
         size = len(content)
         lines = content.count('\n') + 1
@@ -87,7 +91,7 @@ def write_file(path: str, content: str, overwrite: bool = True) -> str:
 
 
 @mcp.tool()
-def append_to_file(path: str, content: str) -> str:
+async def append_to_file(path: str, content: str) -> str:
     """Append content to the end of a file. Creates file if it doesn't exist.
     
     Args:
@@ -101,8 +105,9 @@ def append_to_file(path: str, content: str) -> str:
         file_path = Path(path).expanduser().resolve()
         file_path.parent.mkdir(parents=True, exist_ok=True)
         
-        with open(file_path, 'a', encoding='utf-8') as f:
-            f.write(content)
+        import aiofiles
+        async with aiofiles.open(file_path, mode='a', encoding='utf-8') as f:
+            await f.write(content)
         
         return f"✓ Appended {len(content)} bytes to {file_path}"
     except Exception as e:
@@ -110,7 +115,7 @@ def append_to_file(path: str, content: str) -> str:
 
 
 @mcp.tool()
-def update_file(path: str, old_text: str, new_text: str, count: int = -1) -> str:
+async def update_file(path: str, old_text: str, new_text: str, count: int = -1) -> str:
     """Replace text in a file.
     
     Args:
@@ -128,14 +133,17 @@ def update_file(path: str, old_text: str, new_text: str, count: int = -1) -> str
         if not file_path.exists():
             return f"❌ Error: File does not exist: {path}"
         
-        content = file_path.read_text(encoding='utf-8')
+        import aiofiles
+        async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
+            content = await f.read()
         
         if old_text not in content:
             return f"❌ Error: Text not found in file: '{old_text[:50]}...'" if len(old_text) > 50 else f"❌ Error: Text not found in file: '{old_text}'"
         
         occurrences = content.count(old_text)
         updated_content = content.replace(old_text, new_text, count)
-        file_path.write_text(updated_content, encoding='utf-8')
+        async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
+            await f.write(updated_content)
         
         replaced = occurrences if count == -1 else min(count, occurrences)
         return f"✓ Updated {file_path}\n  Replaced {replaced} occurrence(s)"
@@ -144,7 +152,7 @@ def update_file(path: str, old_text: str, new_text: str, count: int = -1) -> str
 
 
 @mcp.tool()
-def delete_file(path: str) -> str:
+async def delete_file(path: str) -> str:
     """Delete a file.
     
     Args:
@@ -161,7 +169,8 @@ def delete_file(path: str) -> str:
         if not file_path.is_file():
             return f"❌ Error: Path is not a file: {path}"
         
-        file_path.unlink()
+        import aiofiles.os
+        await aiofiles.os.remove(file_path)
         return f"✓ Deleted file: {file_path}"
     except Exception as e:
         return f"❌ Error deleting file: {type(e).__name__}: {e}"
@@ -173,7 +182,7 @@ def delete_file(path: str) -> str:
 
 
 @mcp.tool()
-def list_directory(path: str = ".", show_hidden: bool = False, detailed: bool = False) -> str:
+async def list_directory(path: str = ".", show_hidden: bool = False, detailed: bool = False) -> str:
     """List files and directories in a given path.
     
     Args:
@@ -192,7 +201,8 @@ def list_directory(path: str = ".", show_hidden: bool = False, detailed: bool = 
         if not dir_path.is_dir():
             return f"❌ Error: Not a directory: {path}"
         
-        items = list(dir_path.iterdir())
+        import asyncio
+        items = await asyncio.to_thread(lambda: list(dir_path.iterdir()))
         
         if not show_hidden:
             items = [item for item in items if not item.name.startswith('.')]
@@ -224,7 +234,7 @@ def list_directory(path: str = ".", show_hidden: bool = False, detailed: bool = 
 
 
 @mcp.tool()
-def find_files(
+async def find_files(
     directory: str = ".", 
     pattern: str = "*", 
     recursive: bool = True,
@@ -249,10 +259,11 @@ def find_files(
         if not dir_path.is_dir():
             return f"❌ Error: Not a directory: {directory}"
         
+        import asyncio
         if recursive:
-            matches = list(dir_path.glob(f"**/{pattern}"))
+            matches = await asyncio.to_thread(lambda: list(dir_path.glob(f"**/{pattern}")))
         else:
-            matches = list(dir_path.glob(pattern))
+            matches = await asyncio.to_thread(lambda: list(dir_path.glob(pattern)))
         
         # Filter out directories, keep only files
         matches = [m for m in matches if m.is_file()]
@@ -280,7 +291,7 @@ def find_files(
 
 
 @mcp.tool()
-def create_directory(path: str, parents: bool = True) -> str:
+async def create_directory(path: str, parents: bool = True) -> str:
     """Create a new directory.
     
     Args:
@@ -296,14 +307,15 @@ def create_directory(path: str, parents: bool = True) -> str:
         if dir_path.exists():
             return f"❌ Error: Path already exists: {path}"
         
-        dir_path.mkdir(parents=parents, exist_ok=False)
+        import asyncio
+        await asyncio.to_thread(lambda: dir_path.mkdir(parents=parents, exist_ok=False))
         return f"✓ Created directory: {dir_path}"
     except Exception as e:
         return f"❌ Error creating directory: {type(e).__name__}: {e}"
 
 
 @mcp.tool()
-def organize_directory(directory: str = ".", by: str = "type", dry_run: bool = False) -> str:
+async def organize_directory(directory: str = ".", by: str = "type", dry_run: bool = False) -> str:
     """Organize a directory by moving files into subdirectories.
     
     Args:
@@ -335,7 +347,8 @@ def organize_directory(directory: str = ".", by: str = "type", dry_run: bool = F
         summary = []
         
         # Get all files (excluding directories)
-        items = [item for item in dir_path.iterdir() if item.is_file()]
+        import asyncio
+        items = await asyncio.to_thread(lambda: [item for item in dir_path.iterdir() if item.is_file()])
         
         if not items:
             return f"📁 {dir_path}\n  (no files to organize)"
@@ -439,7 +452,7 @@ def organize_directory(directory: str = ".", by: str = "type", dry_run: bool = F
 
 
 @mcp.tool()
-def count_words(text: str) -> str:
+async def count_words(text: str) -> str:
     """Count words, characters, and lines in a text string.
     
     Args:
@@ -461,7 +474,7 @@ def count_words(text: str) -> str:
 
 
 @mcp.tool()
-def search_text(text: str, query: str, case_sensitive: bool = False) -> str:
+async def search_text(text: str, query: str, case_sensitive: bool = False) -> str:
     """Search for occurrences of a query string in text.
     
     Args:
@@ -512,7 +525,7 @@ def search_text(text: str, query: str, case_sensitive: bool = False) -> str:
 
 
 @mcp.tool()
-def calculate(expression: str) -> str:
+async def calculate(expression: str) -> str:
     """Safely evaluate a mathematical expression.
     
     Args:
@@ -539,14 +552,14 @@ def calculate(expression: str) -> str:
 
 
 @mcp.tool()
-def add_numbers(a: float, b: float) -> str:
+async def add_numbers(a: float, b: float) -> str:
     """Add two numbers together."""
     result = a + b
     return f"🔢 {a} + {b} = {result}"
 
 
 @mcp.tool()
-def multiply_numbers(a: float, b: float) -> str:
+async def multiply_numbers(a: float, b: float) -> str:
     """Multiply two numbers together."""
     result = a * b
     return f"🔢 {a} × {b} = {result}"
@@ -558,13 +571,13 @@ def multiply_numbers(a: float, b: float) -> str:
 
 
 @mcp.tool()
-def get_greeting(name: str) -> str:
+async def get_greeting(name: str) -> str:
     """Generate a personalized greeting."""
     return f"👋 Hello, {name}! Welcome to the Local Utils MCP server."
 
 
 @mcp.tool()
-def get_current_time(timezone: str = "local") -> str:
+async def get_current_time(timezone: str = "local") -> str:
     """Get the current date and time.
     
     Args:
@@ -583,7 +596,7 @@ def get_current_time(timezone: str = "local") -> str:
 
 
 @mcp.resource("server://info")
-def get_server_info() -> str:
+async def get_server_info() -> str:
     """Return server information and available tools."""
     return json.dumps(
         {
@@ -624,7 +637,7 @@ def get_server_info() -> str:
 
 
 @mcp.resource("server://tools")
-def get_tools_info() -> str:
+async def get_tools_info() -> str:
     """Return detailed information about all available tools."""
     tools_info = {
         "file_operations": {
@@ -746,7 +759,7 @@ def get_tools_info() -> str:
 
 
 @mcp.resource("server://usage")
-def get_usage_guide() -> str:
+async def get_usage_guide() -> str:
     """Return usage guide and best practices for the MCP server."""
     guide = {
         "quick_start": {
@@ -785,7 +798,7 @@ def get_usage_guide() -> str:
 
 
 @mcp.resource("server://status")
-def get_server_status() -> str:
+async def get_server_status() -> str:
     """Return current server status and capabilities."""
     status = {
         "status": "operational",
