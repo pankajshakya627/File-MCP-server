@@ -17,10 +17,17 @@ from starlette.responses import JSONResponse
 mcp = FastMCP("Local Utils Server")
 
 def _get_safe_path(path: str) -> Path:
-    """Resolve path relative to Dev_Pankaj directory."""
-    base_dir = Path("Dev_Pankaj").resolve()
+    """Resolve path relative to sandbox directory."""
+    import os
+    import tempfile
+    
+    # Default to /tmp/Dev_Pankaj for cloud compatibility
+    default_sandbox = os.path.join(tempfile.gettempdir(), "Dev_Pankaj")
+    sandbox_dir = os.environ.get("SANDBOX_DIR", default_sandbox)
+    base_dir = Path(sandbox_dir).resolve()
+    
     if not base_dir.exists():
-        base_dir.mkdir(parents=True)
+        base_dir.mkdir(parents=True, exist_ok=True)
     
     # Treat all paths as relative to base_dir
     p = Path(path).expanduser()

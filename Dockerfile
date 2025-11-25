@@ -10,10 +10,13 @@ COPY main.py /app/main.py
 # COPY . /app
 
 # 3. Install dependencies (adjust if you have a pyproject/requirements)
-RUN pip install --no-cache-dir fastmcp
+RUN pip install --no-cache-dir fastmcp aiofiles
 
-# 4. Expose the MCP HTTP port
+# 4. Create sandbox directory and set permissions
+RUN mkdir -p /app/Dev_Pankaj && chmod 777 /app/Dev_Pankaj
+
+# 5. Expose the MCP HTTP port
 EXPOSE 8000
 
-# 5. Run the server
+# 6. Run the server
 CMD ["python", "main.py"]
