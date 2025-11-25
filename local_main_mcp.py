@@ -13,7 +13,30 @@ from starlette.responses import JSONResponse
 
 
 # Initialize FastMCP server
+# Initialize FastMCP server
 mcp = FastMCP("Local Utils Server")
+
+def _get_safe_path(path: str) -> Path:
+    """Resolve path relative to Dev_Pankaj directory."""
+    base_dir = Path("Dev_Pankaj").resolve()
+    if not base_dir.exists():
+        base_dir.mkdir(parents=True)
+    
+    # Treat all paths as relative to base_dir
+    p = Path(path).expanduser()
+    if p.is_absolute():
+        # Strip root to make it relative
+        # Note: This is a simple heuristic. For robust handling, we might need more.
+        # But for "default path" behavior, treating /foo/bar as Dev_Pankaj/foo/bar is acceptable.
+        p = Path(str(p).lstrip('/'))
+        
+    target = (base_dir / p).resolve()
+    
+    # Ensure we haven't escaped via '..'
+    if not str(target).startswith(str(base_dir)):
+        raise ValueError(f"Access denied: Path must be within {base_dir}")
+        
+    return target
 
 
 # ============================================================================
@@ -70,7 +93,7 @@ async def write_file(path: str, content: str, overwrite: bool = True) -> str:
         Success message with file info
     """
     try:
-        file_path = Path(path).expanduser().resolve()
+        file_path = _get_safe_path(path)
         
         if file_path.exists() and not overwrite:
             return f"❌ Error: File already exists (use overwrite=true to replace): {path}"
@@ -102,7 +125,7 @@ async def append_to_file(path: str, content: str) -> str:
         Success message
     """
     try:
-        file_path = Path(path).expanduser().resolve()
+        file_path = _get_safe_path(path)
         file_path.parent.mkdir(parents=True, exist_ok=True)
         
         import aiofiles
@@ -128,7 +151,7 @@ async def update_file(path: str, old_text: str, new_text: str, count: int = -1) 
         Success message or error
     """
     try:
-        file_path = Path(path).expanduser().resolve()
+        file_path = _get_safe_path(path)
         
         if not file_path.exists():
             return f"❌ Error: File does not exist: {path}"
@@ -162,7 +185,7 @@ async def delete_file(path: str) -> str:
         Success message or error
     """
     try:
-        file_path = Path(path).expanduser().resolve()
+        file_path = _get_safe_path(path)
         
         if not file_path.exists():
             return f"❌ Error: File does not exist: {path}"
@@ -302,7 +325,7 @@ async def create_directory(path: str, parents: bool = True) -> str:
         Success message or error
     """
     try:
-        dir_path = Path(path).expanduser().resolve()
+        dir_path = _get_safe_path(path)
         
         if dir_path.exists():
             return f"❌ Error: Path already exists: {path}"
@@ -327,7 +350,7 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
         Summary of organization performed
     """
     try:
-        dir_path = Path(directory).expanduser().resolve()
+        dir_path = _get_safe_path(directory)
         
         if not dir_path.is_dir():
             return f"❌ Error: Not a directory: {directory}"
