@@ -1,0 +1,1027 @@
+
+==================================================
+🚀 Server Configuration
+   SANDBOX_DIR: /var/folders/9k/9w2ktp1j4m1d3sj_kdjsll7r0000gq/T/Dev_Pankaj
+   Absolute Path: /private/var/folders/9k/9w2ktp1j4m1d3sj_kdjsll7r0000gq/T/Dev_Pankaj
+==================================================
+
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "File Management & Financial API",
+    "description": "REST API for file management, utilities, and financial analysis.",
+    "version": "1.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://your-server-url.com",
+      "description": "Production Server"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/debug/config": {
+      "get": {
+        "summary": "Debug Config",
+        "operationId": "debug_config_debug_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/read_file": {
+      "post": {
+        "summary": "Read a file",
+        "operationId": "read_file_read_file_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadFileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/write_file": {
+      "post": {
+        "summary": "Write to a file",
+        "operationId": "write_file_write_file_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteFileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/append_to_file": {
+      "post": {
+        "summary": "Append to a file",
+        "operationId": "append_to_file_append_to_file_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppendFileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update_file": {
+      "post": {
+        "summary": "Update text in a file",
+        "operationId": "update_file_update_file_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete_file": {
+      "post": {
+        "summary": "Delete a file",
+        "operationId": "delete_file_delete_file_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteFileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/list_directory": {
+      "post": {
+        "summary": "List directory contents",
+        "operationId": "list_directory_list_directory_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListDirectoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/find_files": {
+      "post": {
+        "summary": "Find files",
+        "operationId": "find_files_find_files_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindFilesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/create_directory": {
+      "post": {
+        "summary": "Create a directory",
+        "operationId": "create_directory_create_directory_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDirectoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/organize_directory": {
+      "post": {
+        "summary": "Organize a directory",
+        "operationId": "organize_directory_organize_directory_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizeDirectoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/count_words": {
+      "post": {
+        "summary": "Count words in text",
+        "operationId": "count_words_count_words_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CountWordsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search_text": {
+      "post": {
+        "summary": "Search text",
+        "operationId": "search_text_search_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchTextRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculate": {
+      "post": {
+        "summary": "Calculate expression",
+        "operationId": "calculate_calculate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculate_growth": {
+      "post": {
+        "summary": "Calculate compound growth",
+        "operationId": "calculate_growth_calculate_growth_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompoundGrowthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze_prices": {
+      "post": {
+        "summary": "Analyze price series",
+        "operationId": "analyze_prices_analyze_prices_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzePricesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query_csv": {
+      "post": {
+        "summary": "Query CSV file",
+        "operationId": "query_csv_query_csv_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryCSVRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyzePricesRequest": {
+        "properties": {
+          "prices": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Prices",
+            "description": "List of price data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prices"
+        ],
+        "title": "AnalyzePricesRequest"
+      },
+      "AppendFileRequest": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Path to the file to append to"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "Content to append"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "content"
+        ],
+        "title": "AppendFileRequest"
+      },
+      "CalculateRequest": {
+        "properties": {
+          "expression": {
+            "type": "string",
+            "title": "Expression",
+            "description": "Math expression to evaluate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expression"
+        ],
+        "title": "CalculateRequest"
+      },
+      "CompoundGrowthRequest": {
+        "properties": {
+          "principal": {
+            "type": "number",
+            "title": "Principal",
+            "description": "Initial amount"
+          },
+          "rate": {
+            "type": "number",
+            "title": "Rate",
+            "description": "Annual interest rate (%)"
+          },
+          "years": {
+            "type": "number",
+            "title": "Years",
+            "description": "Number of years"
+          },
+          "frequency": {
+            "type": "integer",
+            "title": "Frequency",
+            "description": "Compounds per year",
+            "default": 1
+          },
+          "contribution": {
+            "type": "number",
+            "title": "Contribution",
+            "description": "Annual contribution",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "principal",
+          "rate",
+          "years"
+        ],
+        "title": "CompoundGrowthRequest"
+      },
+      "CountWordsRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Text to analyze"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "CountWordsRequest"
+      },
+      "CreateDirectoryRequest": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Directory path to create"
+          },
+          "parents": {
+            "type": "boolean",
+            "title": "Parents",
+            "description": "Create parent directories",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "title": "CreateDirectoryRequest"
+      },
+      "DeleteFileRequest": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Path to the file to delete"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "title": "DeleteFileRequest"
+      },
+      "FindFilesRequest": {
+        "properties": {
+          "directory": {
+            "type": "string",
+            "title": "Directory",
+            "description": "Directory to search",
+            "default": "."
+          },
+          "pattern": {
+            "type": "string",
+            "title": "Pattern",
+            "description": "Glob pattern",
+            "default": "*"
+          },
+          "recursive": {
+            "type": "boolean",
+            "title": "Recursive",
+            "description": "Recursive search",
+            "default": true
+          },
+          "max_results": {
+            "type": "integer",
+            "title": "Max Results",
+            "description": "Max results",
+            "default": 100
+          }
+        },
+        "type": "object",
+        "title": "FindFilesRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ListDirectoryRequest": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Directory path",
+            "default": "."
+          },
+          "show_hidden": {
+            "type": "boolean",
+            "title": "Show Hidden",
+            "description": "Show hidden files",
+            "default": false
+          },
+          "detailed": {
+            "type": "boolean",
+            "title": "Detailed",
+            "description": "Show detailed info",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "ListDirectoryRequest"
+      },
+      "OrganizeDirectoryRequest": {
+        "properties": {
+          "directory": {
+            "type": "string",
+            "title": "Directory",
+            "description": "Directory to organize",
+            "default": "."
+          },
+          "by": {
+            "type": "string",
+            "title": "By",
+            "description": "Method: type, date, size",
+            "default": "type"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "title": "Dry Run",
+            "description": "Simulate only",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "OrganizeDirectoryRequest"
+      },
+      "QueryCSVRequest": {
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "title": "File Path",
+            "description": "Path to CSV file"
+          },
+          "filter_col": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Col",
+            "description": "Column to filter by"
+          },
+          "filter_val": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Val",
+            "description": "Value to match"
+          },
+          "select_cols": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Select Cols",
+            "description": "Columns to select"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_path"
+        ],
+        "title": "QueryCSVRequest"
+      },
+      "ReadFileRequest": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Path to the file to read"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "title": "ReadFileRequest"
+      },
+      "SearchTextRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Text to search in"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "Query string"
+          },
+          "case_sensitive": {
+            "type": "boolean",
+            "title": "Case Sensitive",
+            "description": "Case sensitive search",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "query"
+        ],
+        "title": "SearchTextRequest"
+      },
+      "UpdateFileRequest": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Path to the file to update"
+          },
+          "old_text": {
+            "type": "string",
+            "title": "Old Text",
+            "description": "Text to find"
+          },
+          "new_text": {
+            "type": "string",
+            "title": "New Text",
+            "description": "Replacement text"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Max replacements (-1 for all)",
+            "default": -1
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "old_text",
+          "new_text"
+        ],
+        "title": "UpdateFileRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WriteFileRequest": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Path to the file to write"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "Content to write"
+          },
+          "overwrite": {
+            "type": "boolean",
+            "title": "Overwrite",
+            "description": "Overwrite existing file",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "content"
+        ],
+        "title": "WriteFileRequest"
+      }
+    }
+  }
+}

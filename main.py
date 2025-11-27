@@ -1,6 +1,24 @@
 """
 FastMCP Server - Local Utils
 A comprehensive MCP server using FastMCP with file operations, text processing, and utilities.
+
+CUSTOM GPT INSTRUCTIONS:
+You are a helpful assistant with access to a remote file management system.
+You can read, write, edit, and organize files and directories using the provided tools.
+
+**Important Rules:**
+1.  **Creating Directories**: Always use the `create_directory` tool to create new folders before writing files into them if they don't exist.
+2.  **Sandboxed Environment**: You are operating within a sandboxed directory. You cannot access files outside of this sandbox.
+3.  **Path Handling**: You can use relative paths (e.g., "my_folder/file.txt") or absolute paths. The system handles them automatically.
+4.  **Concurrency**: You can perform multiple file operations in parallel if needed.
+
+**Capabilities:**
+- Read files: `read_file`
+- Write files: `write_file`
+- Create folders: `create_directory`
+- List files: `list_directory`
+- Search text: `search_text`
+- Organize folders: `organize_directory`
 """
 
 import json
@@ -15,6 +33,12 @@ from starlette.responses import JSONResponse
 # Initialize FastMCP server
 # Initialize FastMCP server
 mcp = FastMCP("Local Utils Server")
+
+from file_utils import (
+    read_file_core, write_file_core, append_to_file_core, update_file_core, delete_file_core,
+    list_directory_core, find_files_core, create_directory_core, organize_directory_core,
+    count_words_core, search_text_core, calculate_core
+)
 
 def _get_safe_path(path: str) -> Path:
     """Resolve path relative to sandbox directory."""
@@ -62,27 +86,7 @@ async def read_file(path: str) -> str:
     Returns:
         File contents as string
     """
-    try:
-        file_path = _get_safe_path(path)
-        
-        if not file_path.exists():
-            return f"❌ Error: File does not exist: {path}"
-        if not file_path.is_file():
-            return f"❌ Error: Path is not a file: {path}"
-        
-        import aiofiles
-        async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
-            content = await f.read()
-        size = len(content)
-        lines = content.count('\n') + 1
-        
-        return f"✓ Read {file_path}\n  Size: {size} bytes, {lines} lines\n\n{content}"
-    except UnicodeDecodeError:
-        return f"❌ Error: File is not a text file or uses unsupported encoding: {path}"
-    except PermissionError:
-        return f"❌ Error: Permission denied: {path}"
-    except Exception as e:
-        return f"❌ Error reading file: {type(e).__name__}: {e}"
+    return await read_file_core(path)
 
 
 @mcp.tool()
@@ -97,25 +101,7 @@ async def write_file(path: str, content: str, overwrite: bool = True) -> str:
     Returns:
         Success message with file info
     """
-    try:
-        file_path = _get_safe_path(path)
-        
-        if file_path.exists() and not overwrite:
-            return f"❌ Error: File already exists (use overwrite=true to replace): {path}"
-        
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        import aiofiles
-        async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
-            await f.write(content)
-        
-        size = len(content)
-        lines = content.count('\n') + 1
-        
-        return f"✓ Successfully wrote to {file_path}\n  Size: {size} bytes, {lines} lines"
-    except PermissionError:
-        return f"❌ Error: Permission denied: {path}"
-    except Exception as e:
-        return f"❌ Error writing file: {type(e).__name__}: {e}"
+    return await write_file_core(path, content, overwrite)
 
 
 @mcp.tool()
@@ -129,17 +115,7 @@ async def append_to_file(path: str, content: str) -> str:
     Returns:
         Success message
     """
-    try:
-        file_path = _get_safe_path(path)
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        import aiofiles
-        async with aiofiles.open(file_path, mode='a', encoding='utf-8') as f:
-            await f.write(content)
-        
-        return f"✓ Appended {len(content)} bytes to {file_path}"
-    except Exception as e:
-        return f"❌ Error appending to file: {type(e).__name__}: {e}"
+    return await append_to_file_core(path, content)
 
 
 @mcp.tool()
@@ -155,28 +131,7 @@ async def update_file(path: str, old_text: str, new_text: str, count: int = -1) 
     Returns:
         Success message or error
     """
-    try:
-        file_path = _get_safe_path(path)
-        
-        if not file_path.exists():
-            return f"❌ Error: File does not exist: {path}"
-        
-        import aiofiles
-        async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
-            content = await f.read()
-        
-        if old_text not in content:
-            return f"❌ Error: Text not found in file: '{old_text[:50]}...'" if len(old_text) > 50 else f"❌ Error: Text not found in file: '{old_text}'"
-        
-        occurrences = content.count(old_text)
-        updated_content = content.replace(old_text, new_text, count)
-        async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
-            await f.write(updated_content)
-        
-        replaced = occurrences if count == -1 else min(count, occurrences)
-        return f"✓ Updated {file_path}\n  Replaced {replaced} occurrence(s)"
-    except Exception as e:
-        return f"❌ Error updating file: {type(e).__name__}: {e}"
+    return await update_file_core(path, old_text, new_text, count)
 
 
 @mcp.tool()
@@ -189,19 +144,7 @@ async def delete_file(path: str) -> str:
     Returns:
         Success message or error
     """
-    try:
-        file_path = _get_safe_path(path)
-        
-        if not file_path.exists():
-            return f"❌ Error: File does not exist: {path}"
-        if not file_path.is_file():
-            return f"❌ Error: Path is not a file: {path}"
-        
-        import aiofiles.os
-        await aiofiles.os.remove(file_path)
-        return f"✓ Deleted file: {file_path}"
-    except Exception as e:
-        return f"❌ Error deleting file: {type(e).__name__}: {e}"
+    return await delete_file_core(path)
 
 
 # ============================================================================
@@ -221,44 +164,7 @@ async def list_directory(path: str = ".", show_hidden: bool = False, detailed: b
     Returns:
         Formatted list of items
     """
-    try:
-        dir_path = _get_safe_path(path)
-        
-        if not dir_path.exists():
-            return f"❌ Error: Path does not exist: {path}"
-        if not dir_path.is_dir():
-            return f"❌ Error: Not a directory: {path}"
-        
-        import asyncio
-        items = await asyncio.to_thread(lambda: list(dir_path.iterdir()))
-        
-        if not show_hidden:
-            items = [item for item in items if not item.name.startswith('.')]
-        
-        items = sorted(items, key=lambda x: (not x.is_dir(), x.name.lower()))
-        
-        if not items:
-            return f"📁 {dir_path}\n  (empty directory)"
-        
-        result = [f"📁 {dir_path}\n"]
-        
-        for item in items:
-            if detailed:
-                size = item.stat().st_size if item.is_file() else 0
-                mtime = datetime.fromtimestamp(item.stat().st_mtime)
-                size_str = format_file_size(size) if item.is_file() else ""
-                date_str = mtime.strftime('%Y-%m-%d %H:%M')
-                result.append(
-                    f"  {'📂' if item.is_dir() else '📄'} {item.name:<40} {size_str:>10} {date_str}"
-                )
-            else:
-                result.append(f"  {'📂' if item.is_dir() else '📄'} {item.name}")
-        
-        return "\n".join(result)
-    except PermissionError:
-        return f"❌ Error: Permission denied: {path}"
-    except Exception as e:
-        return f"❌ Error listing directory: {type(e).__name__}: {e}"
+    return await list_directory_core(path, show_hidden, detailed)
 
 
 @mcp.tool()
@@ -279,43 +185,7 @@ async def find_files(
     Returns:
         List of matching files (one per line)
     """
-    try:
-        dir_path = _get_safe_path(directory)
-        
-        if not dir_path.exists():
-            return f"❌ Error: Directory does not exist: {directory}"
-        if not dir_path.is_dir():
-            return f"❌ Error: Not a directory: {directory}"
-        
-        import asyncio
-        if recursive:
-            matches = await asyncio.to_thread(lambda: list(dir_path.glob(f"**/{pattern}")))
-        else:
-            matches = await asyncio.to_thread(lambda: list(dir_path.glob(pattern)))
-        
-        # Filter out directories, keep only files
-        matches = [m for m in matches if m.is_file()]
-        matches = sorted(matches)[:max_results]
-        
-        if not matches:
-            return f"🔍 No files matching pattern '{pattern}' in {directory}"
-        
-        result = [f"🔍 Found {len(matches)} file(s) matching '{pattern}':\n"]
-        
-        for match in matches:
-            try:
-                rel_path = match.relative_to(dir_path)
-                size = format_file_size(match.stat().st_size)
-                result.append(f"  📄 {rel_path} ({size})")
-            except ValueError:
-                result.append(f"  📄 {match}")
-        
-        if len(matches) == max_results:
-            result.append(f"\n⚠️  Results limited to {max_results} files")
-        
-        return "\n".join(result)
-    except Exception as e:
-        return f"❌ Error finding files: {type(e).__name__}: {e}"
+    return await find_files_core(directory, pattern, recursive, max_results)
 
 
 @mcp.tool()
@@ -329,17 +199,7 @@ async def create_directory(path: str, parents: bool = True) -> str:
     Returns:
         Success message or error
     """
-    try:
-        dir_path = _get_safe_path(path)
-        
-        if dir_path.exists():
-            return f"❌ Error: Path already exists: {path}"
-        
-        import asyncio
-        await asyncio.to_thread(lambda: dir_path.mkdir(parents=parents, exist_ok=False))
-        return f"✓ Created directory: {dir_path}"
-    except Exception as e:
-        return f"❌ Error creating directory: {type(e).__name__}: {e}"
+    return await create_directory_core(path, parents)
 
 
 @mcp.tool()
@@ -354,127 +214,7 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
     Returns:
         Summary of organization performed
     """
-    try:
-        dir_path = _get_safe_path(directory)
-        
-        if not dir_path.is_dir():
-            return f"❌ Error: Not a directory: {directory}"
-        
-        # Define file type categories
-        type_categories = {
-            'Documents': ['.pdf', '.doc', '.docx', '.txt', '.xlsx', '.xls', '.csv', '.ppt', '.pptx', '.odt', '.rtf'],
-            'Images': ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.ico', '.tiff'],
-            'Videos': ['.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv', '.webm', '.m4v'],
-            'Audio': ['.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a', '.wma'],
-            'Code': ['.py', '.js', '.ts', '.java', '.cpp', '.c', '.go', '.rs', '.rb', '.php', '.html', '.css', '.json', '.yaml', '.yml', '.xml', '.md', '.sh', '.bat', '.swift', '.kt', '.scala', '.ipynb'],
-            'Archives': ['.zip', '.tar', '.gz', '.rar', '.7z', '.bz2', '.xz'],
-            'Executables': ['.exe', '.app', '.dmg', '.deb', '.rpm', '.msi'],
-        }
-        
-        moved_count = 0
-        summary = []
-        
-        # Get all files (excluding directories)
-        import asyncio
-        items = await asyncio.to_thread(lambda: [item for item in dir_path.iterdir() if item.is_file()])
-        
-        if not items:
-            return f"📁 {dir_path}\n  (no files to organize)"
-        
-        if by == 'type':
-            for item in items:
-                suffix = item.suffix.lower()
-                category = 'Other'
-                
-                for cat, exts in type_categories.items():
-                    if suffix in exts:
-                        category = cat
-                        break
-                
-                target_dir = dir_path / category
-                target_file = target_dir / item.name
-                
-                # Handle name conflicts
-                counter = 1
-                while target_file.exists():
-                    target_file = target_dir / f"{item.stem}_{counter}{item.suffix}"
-                    counter += 1
-                
-                if not dry_run:
-                    import asyncio
-                    await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
-                    await asyncio.to_thread(item.rename, target_file)
-                
-                moved_count += 1
-                summary.append(f"  {item.name} → {category}/")
-        
-        elif by == 'date':
-            for item in items:
-                mtime = item.stat().st_mtime
-                date_str = datetime.fromtimestamp(mtime).strftime('%Y-%m')
-                
-                target_dir = dir_path / date_str
-                target_file = target_dir / item.name
-                
-                counter = 1
-                while target_file.exists():
-                    target_file = target_dir / f"{item.stem}_{counter}{item.suffix}"
-                    counter += 1
-                
-                if not dry_run:
-                    import asyncio
-                    await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
-                    await asyncio.to_thread(item.rename, target_file)
-                
-                moved_count += 1
-                summary.append(f"  {item.name} → {date_str}/")
-        
-        elif by == 'size':
-            for item in items:
-                size_bytes = item.stat().st_size
-                
-                if size_bytes < 1_000_000:  # < 1 MB
-                    category = 'Small'
-                elif size_bytes < 100_000_000:  # < 100 MB
-                    category = 'Medium'
-                else:
-                    category = 'Large'
-                
-                target_dir = dir_path / category
-                target_file = target_dir / item.name
-                
-                counter = 1
-                while target_file.exists():
-                    target_file = target_dir / f"{item.stem}_{counter}{item.suffix}"
-                    counter += 1
-                
-                if not dry_run:
-                    import asyncio
-                    await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
-                    await asyncio.to_thread(item.rename, target_file)
-                
-                moved_count += 1
-                summary.append(f"  {item.name} → {category}/")
-        
-        else:
-            return f"❌ Error: Unknown organization method '{by}'. Use 'type', 'date', or 'size'."
-        
-        mode = "🔍 DRY RUN - Would organize" if dry_run else "✓ Organized"
-        result = [f"{mode} directory by {by}"]
-        result.append(f"  Files processed: {moved_count}\n")
-        
-        if summary and len(summary) <= 30:
-            result.extend(summary)
-        else:
-            result.extend(summary[:30])
-            result.append(f"\n  ... and {len(summary) - 30} more files")
-        
-        if dry_run:
-            result.append("\n💡 Run with dry_run=false to actually move files")
-        
-        return "\n".join(result)
-    except Exception as e:
-        return f"❌ Error organizing directory: {type(e).__name__}: {e}"
+    return await organize_directory_core(directory, by, dry_run)
 
 
 # ============================================================================
@@ -492,21 +232,7 @@ async def count_words(text: str) -> str:
     Returns:
         Statistics about the text
     """
-    def _count():
-        words = len(text.split())
-        chars = len(text)
-        chars_no_spaces = len(text.replace(' ', '').replace('\n', '').replace('\t', ''))
-        lines = text.count('\n') + 1
-        return words, chars, chars_no_spaces, lines
-
-    import asyncio
-    words, chars, chars_no_spaces, lines = await asyncio.to_thread(_count)
-    
-    return f"""📊 Text Statistics:
-  Words: {words:,}
-  Characters (with spaces): {chars:,}
-  Characters (without spaces): {chars_no_spaces:,}
-  Lines: {lines:,}"""
+    return await count_words_core(text)
 
 
 @mcp.tool()
@@ -521,42 +247,7 @@ async def search_text(text: str, query: str, case_sensitive: bool = False) -> st
     Returns:
         Number of matches and context around each match
     """
-    def _search():
-        search_text_val = text if case_sensitive else text.lower()
-        search_query_val = query if case_sensitive else query.lower()
-        
-        count = search_text_val.count(search_query_val)
-        
-        if count == 0:
-            return f"🔍 No matches found for '{query}'"
-        
-        # Find positions
-        positions = []
-        start = 0
-        while True:
-            pos = search_text_val.find(search_query_val, start)
-            if pos == -1:
-                break
-            positions.append(pos)
-            start = pos + 1
-        
-        result = [f"🔍 Found {count} occurrence(s) of '{query}':\n"]
-        
-        for i, pos in enumerate(positions[:10], 1):  # Show first 10 matches
-            # Get context (50 chars before and after)
-            start = max(0, pos - 50)
-            end = min(len(text), pos + len(query) + 50)
-            context = text[start:end]
-            
-            result.append(f"  {i}. Position {pos}: ...{context}...")
-        
-        if len(positions) > 10:
-            result.append(f"\n  ... and {len(positions) - 10} more occurrences")
-        
-        return "\n".join(result)
-
-    import asyncio
-    return await asyncio.to_thread(_search)
+    return await search_text_core(text, query, case_sensitive)
 
 
 # ============================================================================
@@ -574,22 +265,7 @@ async def calculate(expression: str) -> str:
     Returns:
         Result of the calculation
     """
-    try:
-        # Safe mathematical functions
-        import math
-        safe_dict = {
-            'abs': abs, 'round': round, 'min': min, 'max': max,
-            'sum': sum, 'pow': pow,
-            'sqrt': math.sqrt, 'sin': math.sin, 'cos': math.cos,
-            'tan': math.tan, 'log': math.log, 'log10': math.log10,
-            'exp': math.exp, 'pi': math.pi, 'e': math.e,
-        }
-        
-        import asyncio
-        result = await asyncio.to_thread(eval, expression, {"__builtins__": {}}, safe_dict)
-        return f"🔢 {expression} = {result}"
-    except Exception as e:
-        return f"❌ Error evaluating expression: {e}"
+    return await calculate_core(expression)
 
 
 @mcp.tool()
