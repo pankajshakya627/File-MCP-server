@@ -914,22 +914,10 @@ def format_file_size(size_bytes: int) -> str:
 
 if __name__ == "__main__":
     # Support both STDIO (for Claude Desktop/MCP Inspector) and HTTP (for REST API)
-    # Use environment variables to configure transport mode
-    transport_mode = os.environ.get("MCP_TRANSPORT", "http")  
-    
-    if transport_mode.lower() == "http":
-        # HTTP transport for REST API usage
-        host = os.environ.get("MCP_HOST", "0.0.0.0")
-        port = int(os.environ.get("MCP_PORT", "8000"))
-        
-        print(f"Starting FastMCP server in HTTP mode on {host}:{port}", file=sys.stderr)
-        mcp.run(
+    mcp.run(
             transport="http",
-            host=host,
-            port=port,
+            host='0.0.0.0',
+            port=8000
         )
-    else:
-        # STDIO transport (default) for MCP clients like Claude Desktop
-        print("Starting FastMCP server in STDIO mode", file=sys.stderr)
-        mcp.run()  # Default is STDIO transport
+    # mcp.run()  # Default is STDIO transport
 
