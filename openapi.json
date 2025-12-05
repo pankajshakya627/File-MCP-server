@@ -1,20 +1,13 @@
-
-==================================================
-🚀 Server Configuration
-   SANDBOX_DIR: /var/folders/9k/9w2ktp1j4m1d3sj_kdjsll7r0000gq/T/Dev_Pankaj
-   Absolute Path: /private/var/folders/9k/9w2ktp1j4m1d3sj_kdjsll7r0000gq/T/Dev_Pankaj
-==================================================
-
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "File Management & Financial API",
-    "description": "REST API for file management, utilities, and financial analysis.",
-    "version": "1.1.0"
+    "title": "File Management API",
+    "description": "REST API for file management and utilities, compatible with ChatGPT Actions.",
+    "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "https://your-server-url.com",
+      "url": "https://unmissed-heide-pseudogentlemanly.ngrok-free.dev",
       "description": "Production Server"
     }
   ],
@@ -498,135 +491,10 @@
           }
         }
       }
-    },
-    "/calculate_growth": {
-      "post": {
-        "summary": "Calculate compound growth",
-        "operationId": "calculate_growth_calculate_growth_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompoundGrowthRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/analyze_prices": {
-      "post": {
-        "summary": "Analyze price series",
-        "operationId": "analyze_prices_analyze_prices_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AnalyzePricesRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/query_csv": {
-      "post": {
-        "summary": "Query CSV file",
-        "operationId": "query_csv_query_csv_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/QueryCSVRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "AnalyzePricesRequest": {
-        "properties": {
-          "prices": {
-            "items": {
-              "type": "number"
-            },
-            "type": "array",
-            "title": "Prices",
-            "description": "List of price data"
-          }
-        },
-        "type": "object",
-        "required": [
-          "prices"
-        ],
-        "title": "AnalyzePricesRequest"
-      },
       "AppendFileRequest": {
         "properties": {
           "path": {
@@ -660,44 +528,6 @@
           "expression"
         ],
         "title": "CalculateRequest"
-      },
-      "CompoundGrowthRequest": {
-        "properties": {
-          "principal": {
-            "type": "number",
-            "title": "Principal",
-            "description": "Initial amount"
-          },
-          "rate": {
-            "type": "number",
-            "title": "Rate",
-            "description": "Annual interest rate (%)"
-          },
-          "years": {
-            "type": "number",
-            "title": "Years",
-            "description": "Number of years"
-          },
-          "frequency": {
-            "type": "integer",
-            "title": "Frequency",
-            "description": "Compounds per year",
-            "default": 1
-          },
-          "contribution": {
-            "type": "number",
-            "title": "Contribution",
-            "description": "Annual contribution",
-            "default": 0
-          }
-        },
-        "type": "object",
-        "required": [
-          "principal",
-          "rate",
-          "years"
-        ],
-        "title": "CompoundGrowthRequest"
       },
       "CountWordsRequest": {
         "properties": {
@@ -837,59 +667,6 @@
         },
         "type": "object",
         "title": "OrganizeDirectoryRequest"
-      },
-      "QueryCSVRequest": {
-        "properties": {
-          "file_path": {
-            "type": "string",
-            "title": "File Path",
-            "description": "Path to CSV file"
-          },
-          "filter_col": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Filter Col",
-            "description": "Column to filter by"
-          },
-          "filter_val": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Filter Val",
-            "description": "Value to match"
-          },
-          "select_cols": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Select Cols",
-            "description": "Columns to select"
-          }
-        },
-        "type": "object",
-        "required": [
-          "file_path"
-        ],
-        "title": "QueryCSVRequest"
       },
       "ReadFileRequest": {
         "properties": {

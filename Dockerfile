@@ -4,19 +4,17 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # 2. Copy your server code
-COPY main.py /app/main.py
+COPY rest_api.py /app/rest_api.py
+COPY file_utils.py /app/file_utils.py
 
-# If you have other modules, copy them too:
-# COPY . /app
-
-# 3. Install dependencies (adjust if you have a pyproject/requirements)
-RUN pip install --no-cache-dir fastmcp aiofiles
+# 3. Install dependencies
+RUN pip install --no-cache-dir fastapi uvicorn pydantic aiofiles
 
 # 4. Create sandbox directory and set permissions
 RUN mkdir -p /app/Dev_Pankaj && chmod 777 /app/Dev_Pankaj
 
-# 5. Expose the MCP HTTP port
-EXPOSE 8000
+# 5. Expose the HTTP port
+EXPOSE 8011
 
 # 6. Run the server
-CMD ["python", "main.py"]
+CMD ["uvicorn", "rest_api:app", "--host", "0.0.0.0", "--port", "8011"]

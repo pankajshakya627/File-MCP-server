@@ -16,17 +16,20 @@ from pathlib import Path
 # Print configuration on startup
 default_sandbox = os.path.join(tempfile.gettempdir(), "Dev_Pankaj")
 sandbox_dir = os.environ.get("SANDBOX_DIR", default_sandbox)
+server_url = os.environ.get("SERVER_URL", "https://unmissed-heide-pseudogentlemanly.ngrok-free.dev")
+
 print(f"\n{'='*50}")
 print(f"🚀 Server Configuration")
 print(f"   SANDBOX_DIR: {sandbox_dir}")
 print(f"   Absolute Path: {Path(sandbox_dir).resolve()}")
+print(f"   SERVER_URL:  {server_url}")
 print(f"{'='*50}\n")
 
 app = FastAPI(
     title="File Management API",
     description="REST API for file management and utilities, compatible with ChatGPT Actions.",
     version="1.0.0",
-    servers=[{"url": "https://your-server-url.com", "description": "Production Server"}]
+    servers=[{"url": server_url, "description": "Production Server"}]
 )
 
 # ============================================================================
@@ -161,4 +164,4 @@ async def calculate(request: CalculateRequest):
     return await calculate_core(request.expression)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8011)
