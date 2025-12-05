@@ -3,23 +3,26 @@ FastMCP Server - Local Utils
 A comprehensive MCP server using FastMCP with file operations, text processing, and utilities.
 """
 
+import asyncio
 import json
+import math
+import os
 import sys
+import tempfile
 from pathlib import Path
 from datetime import datetime
 
+import aiofiles
+import aiofiles.os
 from fastmcp import FastMCP
 from starlette.responses import JSONResponse
 
 
 # Initialize FastMCP server
-# Initialize FastMCP server
 mcp = FastMCP("Local Utils Server")
 
 def _get_safe_path(path: str) -> Path:
     """Resolve path relative to sandbox directory."""
-    import os
-    import tempfile
     
     # Default to /tmp/Dev_Pankaj for cloud compatibility
     default_sandbox = os.path.join(tempfile.gettempdir(), "Dev_Pankaj")
@@ -70,7 +73,6 @@ async def read_file(path: str) -> str:
         if not file_path.is_file():
             return f"❌ Error: Path is not a file: {path}"
         
-        import aiofiles
         async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
             content = await f.read()
         size = len(content)
@@ -104,7 +106,6 @@ async def write_file(path: str, content: str, overwrite: bool = True) -> str:
             return f"❌ Error: File already exists (use overwrite=true to replace): {path}"
         
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        import aiofiles
         async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
             await f.write(content)
         
@@ -133,7 +134,6 @@ async def append_to_file(path: str, content: str) -> str:
         file_path = _get_safe_path(path)
         file_path.parent.mkdir(parents=True, exist_ok=True)
         
-        import aiofiles
         async with aiofiles.open(file_path, mode='a', encoding='utf-8') as f:
             await f.write(content)
         
@@ -161,7 +161,6 @@ async def update_file(path: str, old_text: str, new_text: str, count: int = -1) 
         if not file_path.exists():
             return f"❌ Error: File does not exist: {path}"
         
-        import aiofiles
         async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
             content = await f.read()
         
@@ -197,7 +196,6 @@ async def delete_file(path: str) -> str:
         if not file_path.is_file():
             return f"❌ Error: Path is not a file: {path}"
         
-        import aiofiles.os
         await aiofiles.os.remove(file_path)
         return f"✓ Deleted file: {file_path}"
     except Exception as e:
@@ -229,7 +227,6 @@ async def list_directory(path: str = ".", show_hidden: bool = False, detailed: b
         if not dir_path.is_dir():
             return f"❌ Error: Not a directory: {path}"
         
-        import asyncio
         items = await asyncio.to_thread(lambda: list(dir_path.iterdir()))
         
         if not show_hidden:
@@ -287,7 +284,6 @@ async def find_files(
         if not dir_path.is_dir():
             return f"❌ Error: Not a directory: {directory}"
         
-        import asyncio
         if recursive:
             matches = await asyncio.to_thread(lambda: list(dir_path.glob(f"**/{pattern}")))
         else:
@@ -335,7 +331,6 @@ async def create_directory(path: str, parents: bool = True) -> str:
         if dir_path.exists():
             return f"❌ Error: Path already exists: {path}"
         
-        import asyncio
         await asyncio.to_thread(lambda: dir_path.mkdir(parents=parents, exist_ok=False))
         return f"✓ Created directory: {dir_path}"
     except Exception as e:
@@ -375,7 +370,6 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
         summary = []
         
         # Get all files (excluding directories)
-        import asyncio
         items = await asyncio.to_thread(lambda: [item for item in dir_path.iterdir() if item.is_file()])
         
         if not items:
@@ -401,7 +395,6 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
                     counter += 1
                 
                 if not dry_run:
-                    import asyncio
                     await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
                     await asyncio.to_thread(item.rename, target_file)
                 
@@ -422,7 +415,6 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
                     counter += 1
                 
                 if not dry_run:
-                    import asyncio
                     await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
                     await asyncio.to_thread(item.rename, target_file)
                 
@@ -449,7 +441,6 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
                     counter += 1
                 
                 if not dry_run:
-                    import asyncio
                     await asyncio.to_thread(target_dir.mkdir, parents=True, exist_ok=True)
                     await asyncio.to_thread(item.rename, target_file)
                 
@@ -499,7 +490,6 @@ async def count_words(text: str) -> str:
         lines = text.count('\n') + 1
         return words, chars, chars_no_spaces, lines
 
-    import asyncio
     words, chars, chars_no_spaces, lines = await asyncio.to_thread(_count)
     
     return f"""📊 Text Statistics:
@@ -555,7 +545,6 @@ async def search_text(text: str, query: str, case_sensitive: bool = False) -> st
         
         return "\n".join(result)
 
-    import asyncio
     return await asyncio.to_thread(_search)
 
 
@@ -576,7 +565,6 @@ async def calculate(expression: str) -> str:
     """
     try:
         # Safe mathematical functions
-        import math
         safe_dict = {
             'abs': abs, 'round': round, 'min': min, 'max': max,
             'sum': sum, 'pow': pow,
@@ -585,7 +573,6 @@ async def calculate(expression: str) -> str:
             'exp': math.exp, 'pi': math.pi, 'e': math.e,
         }
         
-        import asyncio
         result = await asyncio.to_thread(eval, expression, {"__builtins__": {}}, safe_dict)
         return f"🔢 {expression} = {result}"
     except Exception as e:
@@ -926,9 +913,23 @@ def format_file_size(size_bytes: int) -> str:
 
 
 if __name__ == "__main__":
-    # mcp.run()
-    mcp.run(
-    transport="http",
-    host="0.0.0.0",
-    port=8000,
-)
+    # Support both STDIO (for Claude Desktop/MCP Inspector) and HTTP (for REST API)
+    # Use environment variables to configure transport mode
+    transport_mode = os.environ.get("MCP_TRANSPORT", "http")  
+    
+    if transport_mode.lower() == "http":
+        # HTTP transport for REST API usage
+        host = os.environ.get("MCP_HOST", "0.0.0.0")
+        port = int(os.environ.get("MCP_PORT", "8000"))
+        
+        print(f"Starting FastMCP server in HTTP mode on {host}:{port}", file=sys.stderr)
+        mcp.run(
+            transport="http",
+            host=host,
+            port=port,
+        )
+    else:
+        # STDIO transport (default) for MCP clients like Claude Desktop
+        print("Starting FastMCP server in STDIO mode", file=sys.stderr)
+        mcp.run()  # Default is STDIO transport
+

@@ -1,6 +1,46 @@
 {
   "entrypoint": "main.py",
   "environment": {
-    "dependencies": ["fastmcp"]
+    "dependencies": [
+      "fastmcp==2.13.0.2",
+      "aiofiles",
+      "pydantic>=2.11.7",
+      "pandas==2.2.3",
+      "numpy>=1.26.0"
+    ]
+  },
+  "description": "Optimized Local Utils MCP Server - File operations, text processing, and utilities",
+  "version": "2.0.0",
+  "features": {
+    "tools": 19,
+    "resources": 4,
+    "prompts": 2,
+    "custom_routes": 1
+  },
+  "transports": {
+    "stdio": {
+      "description": "Default mode for Claude Desktop and MCP Inspector",
+      "command": [
+        "uv",
+        "run",
+        "main.py"
+      ]
+    },
+    "http": {
+      "description": "HTTP mode for REST API usage",
+      "command": [
+        "MCP_TRANSPORT=http",
+        "uv",
+        "run",
+        "main.py"
+      ],
+      "default_port": 8000
+    }
+  },
+  "optimizations": {
+    "async_io": true,
+    "import_consolidation": true,
+    "environment_config": true,
+    "sandbox_security": true
   }
 }

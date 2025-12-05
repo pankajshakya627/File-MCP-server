@@ -5,6 +5,8 @@ description = "A working MCP server using FastMCP with stdio and HTTP streamable
 requires-python = ">=3.11"
 dependencies = [
     "fastmcp==2.13.0.2",
-    "aiofiles"
+    "aiofiles",
+    "pydantic>=2.11.7",  # Required by fastmcp 2.13.0.2
+    "pandas==2.2.3",
+    "numpy>=1.26.0",  # Updated for Python 3.12+ compatibility
 ]
-
