@@ -18,8 +18,16 @@ from fastmcp import FastMCP
 from starlette.responses import JSONResponse
 
 
-# Initialize FastMCP server
-mcp = FastMCP("Local Utils Server")
+# Initialize FastMCP server with modern configuration
+mcp = FastMCP(
+    name="Local Utils Server",
+    instructions="""
+    A comprehensive MCP server for file operations, directory management,
+    text processing, and mathematical utilities. Use sandbox paths for
+    file operations (writes go to SANDBOX_DIR environment variable or /tmp/Dev_Pankaj).
+    """,
+    version="2.0.0",
+)
 
 def _get_safe_path(path: str) -> Path:
     """Resolve path relative to sandbox directory."""
@@ -55,7 +63,7 @@ async def health_check(request):
     return JSONResponse({"status": "healthy", "service": "mcp-server"})
 
 
-@mcp.tool()
+@mcp.tool(tags={"file", "read", "safe"})
 async def read_file(path: str) -> str:
     """Read and return the contents of a file.
     
@@ -87,7 +95,7 @@ async def read_file(path: str) -> str:
         return f"❌ Error reading file: {type(e).__name__}: {e}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"file", "write", "create"})
 async def write_file(path: str, content: str, overwrite: bool = True) -> str:
     """Write content to a file. Creates parent directories if needed.
     
@@ -119,7 +127,7 @@ async def write_file(path: str, content: str, overwrite: bool = True) -> str:
         return f"❌ Error writing file: {type(e).__name__}: {e}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"file", "write", "append"})
 async def append_to_file(path: str, content: str) -> str:
     """Append content to the end of a file. Creates file if it doesn't exist.
     
@@ -142,7 +150,7 @@ async def append_to_file(path: str, content: str) -> str:
         return f"❌ Error appending to file: {type(e).__name__}: {e}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"file", "write", "update"})
 async def update_file(path: str, old_text: str, new_text: str, count: int = -1) -> str:
     """Replace text in a file.
     
@@ -178,7 +186,7 @@ async def update_file(path: str, old_text: str, new_text: str, count: int = -1) 
         return f"❌ Error updating file: {type(e).__name__}: {e}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"file", "delete", "destructive"})
 async def delete_file(path: str) -> str:
     """Delete a file.
     
@@ -207,7 +215,7 @@ async def delete_file(path: str) -> str:
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(tags={"directory", "read", "safe"})
 async def list_directory(path: str = ".", show_hidden: bool = False, detailed: bool = False) -> str:
     """List files and directories in a given path.
     
@@ -258,7 +266,7 @@ async def list_directory(path: str = ".", show_hidden: bool = False, detailed: b
         return f"❌ Error listing directory: {type(e).__name__}: {e}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"directory", "search", "safe"})
 async def find_files(
     directory: str = ".", 
     pattern: str = "*", 
@@ -314,7 +322,7 @@ async def find_files(
         return f"❌ Error finding files: {type(e).__name__}: {e}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"directory", "create"})
 async def create_directory(path: str, parents: bool = True) -> str:
     """Create a new directory.
     
@@ -337,7 +345,7 @@ async def create_directory(path: str, parents: bool = True) -> str:
         return f"❌ Error creating directory: {type(e).__name__}: {e}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"directory", "organize", "utility"})
 async def organize_directory(directory: str = ".", by: str = "type", dry_run: bool = False) -> str:
     """Organize a directory by moving files into subdirectories.
     
@@ -473,7 +481,7 @@ async def organize_directory(directory: str = ".", by: str = "type", dry_run: bo
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(tags={"text", "analyze", "safe"})
 async def count_words(text: str) -> str:
     """Count words, characters, and lines in a text string.
     
@@ -499,7 +507,7 @@ async def count_words(text: str) -> str:
   Lines: {lines:,}"""
 
 
-@mcp.tool()
+@mcp.tool(tags={"text", "search", "safe"})
 async def search_text(text: str, query: str, case_sensitive: bool = False) -> str:
     """Search for occurrences of a query string in text.
     
@@ -553,7 +561,7 @@ async def search_text(text: str, query: str, case_sensitive: bool = False) -> st
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(tags={"math", "calculate", "safe"})
 async def calculate(expression: str) -> str:
     """Safely evaluate a mathematical expression.
     
@@ -579,14 +587,14 @@ async def calculate(expression: str) -> str:
         return f"❌ Error evaluating expression: {e}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"math", "arithmetic", "safe"})
 async def add_numbers(a: float, b: float) -> str:
     """Add two numbers together."""
     result = a + b
     return f"🔢 {a} + {b} = {result}"
 
 
-@mcp.tool()
+@mcp.tool(tags={"math", "arithmetic", "safe"})
 async def multiply_numbers(a: float, b: float) -> str:
     """Multiply two numbers together."""
     result = a * b
@@ -598,13 +606,13 @@ async def multiply_numbers(a: float, b: float) -> str:
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(tags={"utility", "greeting", "safe"})
 async def get_greeting(name: str) -> str:
     """Generate a personalized greeting."""
     return f"👋 Hello, {name}! Welcome to the Local Utils MCP server."
 
 
-@mcp.tool()
+@mcp.tool(tags={"utility", "time", "safe"})
 async def get_current_time(timezone: str = "local") -> str:
     """Get the current date and time.
     
@@ -860,8 +868,8 @@ async def get_server_status() -> str:
 # ============================================================================
 
 
-@mcp.prompt()
-def code_review_prompt(code: str, language: str = "python") -> str:
+@mcp.prompt(tags={"code", "review"})
+async def code_review_prompt(code: str, language: str = "python") -> str:
     """Generate a code review prompt for a given code snippet."""
     return f"""Please review the following {language} code:
 
@@ -879,8 +887,8 @@ Provide feedback on:
 """
 
 
-@mcp.prompt()
-def file_analysis_prompt(file_path: str) -> str:
+@mcp.prompt(tags={"file", "analysis"})
+async def file_analysis_prompt(file_path: str) -> str:
     """Generate a prompt to analyze a file."""
     return f"""Please analyze the file at: {file_path}
 
