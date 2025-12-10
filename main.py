@@ -863,6 +863,126 @@ async def get_server_status() -> str:
     return json.dumps(status, indent=2)
 
 
+@mcp.resource("server://prompts")
+async def get_prompts_catalog() -> str:
+    """Return a catalog of available prompt templates."""
+    prompts = {
+        "available_prompts": {
+            "code_review_prompt": {
+                "description": "Generate a detailed code review prompt",
+                "parameters": {
+                    "code": "The code snippet to review",
+                    "language": "Programming language (default: python)"
+                },
+                "use_case": "Get structured feedback on code quality, bugs, performance, and best practices"
+            },
+            "file_analysis_prompt": {
+                "description": "Generate a file analysis prompt",
+                "parameters": {
+                    "file_path": "Path to the file to analyze"
+                },
+                "use_case": "Analyze file structure, purpose, and suggest improvements"
+            }
+        },
+        "usage_in_chatgpt": "Use: 'Call the File Management connector's code_review_prompt with my code'"
+    }
+    return json.dumps(prompts, indent=2)
+
+
+@mcp.resource("server://config")
+async def get_sandbox_config() -> str:
+    """Return current sandbox configuration for file operations."""
+    import os
+    import tempfile
+    
+    default_sandbox = os.path.join(tempfile.gettempdir(), "Dev_Pankaj")
+    sandbox_dir = os.environ.get("SANDBOX_DIR", default_sandbox)
+    
+    config = {
+        "sandbox_directory": sandbox_dir,
+        "sandbox_exists": os.path.exists(sandbox_dir),
+        "environment_variable": "SANDBOX_DIR",
+        "default_path": default_sandbox,
+        "security": {
+            "path_traversal_blocked": True,
+            "absolute_paths_converted": True,
+            "parent_directory_access": "denied"
+        },
+        "notes": [
+            "All file write operations are sandboxed",
+            "Read operations use the sandbox path",
+            "Set SANDBOX_DIR env var to customize location"
+        ]
+    }
+    return json.dumps(config, indent=2)
+
+
+@mcp.resource("server://quick-reference")
+async def get_quick_reference() -> str:
+    """Return a quick reference card for common operations."""
+    reference = {
+        "file_operations": {
+            "read": "read_file('path/to/file.txt')",
+            "write": "write_file('path/to/file.txt', 'content')",
+            "append": "append_to_file('path/to/file.txt', 'more content')",
+            "update": "update_file('path/to/file.txt', 'old', 'new')",
+            "delete": "delete_file('path/to/file.txt')"
+        },
+        "directory_operations": {
+            "list": "list_directory('.', show_hidden=True, detailed=True)",
+            "find": "find_files('.', '*.py', recursive=True)",
+            "create": "create_directory('new_folder')",
+            "organize": "organize_directory('.', by='type', dry_run=True)"
+        },
+        "text_processing": {
+            "count": "count_words('your text here')",
+            "search": "search_text('text content', 'query', case_sensitive=False)"
+        },
+        "math": {
+            "calculate": "calculate('sqrt(16) + 5 * 3')",
+            "add": "add_numbers(10, 20)",
+            "multiply": "multiply_numbers(5, 7)"
+        },
+        "utilities": {
+            "greet": "get_greeting('Pankaj')",
+            "time": "get_current_time()"
+        }
+    }
+    return json.dumps(reference, indent=2)
+
+
+@mcp.resource("server://examples")
+async def get_examples() -> str:
+    """Return practical examples for common use cases."""
+    examples = {
+        "chatgpt_prompts": {
+            "list_files": "Use the 'File Management' connector's list_directory tool to show all files in the current directory",
+            "create_file": "Use 'File Management' connector's write_file tool to create a file called notes.txt with content 'Hello World'",
+            "find_python": "Use 'File Management' connector's find_files tool to find all .py files recursively",
+            "get_help": "Use 'File Management' connector to read resource 'server://quick-reference'",
+            "check_status": "Use 'File Management' connector to read resource 'server://status'"
+        },
+        "multi_step_workflows": {
+            "backup_and_modify": [
+                "1. Call read_file to get current content",
+                "2. Call write_file to create a backup",
+                "3. Call update_file to modify the original"
+            ],
+            "organize_downloads": [
+                "1. Call list_directory with detailed=True to see files",
+                "2. Call organize_directory with dry_run=True to preview",
+                "3. Call organize_directory with dry_run=False to execute"
+            ]
+        },
+        "safety_tips": [
+            "Always use dry_run=True first for organize_directory",
+            "Check file exists with list_directory before reading",
+            "Backup important files before updating"
+        ]
+    }
+    return json.dumps(examples, indent=2)
+
+
 # ============================================================================
 # PROMPTS
 # ============================================================================
